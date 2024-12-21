@@ -93,7 +93,7 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
     // 4) jwt 토큰을 발급해서 화면으로 보낸다.
     const jwtToken = jwt.sign({
       email : email,
-      issuer : 'sehwan'
+      issuer : 'JY'
       },
         SECRET_KEY,
       {

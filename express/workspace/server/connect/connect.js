@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const connection_url = `mongodb+srv://app:1234@app.stk4caz.mongodb.net/`;
+const connection_url = `mongodb+srv://app:1234@app.lixyw.mongodb.net/`;
 
 const connect = () => {
   if(process.env.NODE_ENV != "production"){

@@ -8,6 +8,7 @@ const userSchema = new Schema({
     nickName: { type: String },                                 //닉네임
     birthDate : { type : Number },                              //생일
     address: { type: String },                                  //주소
+    isTeacher : { type : Boolean, default : false },
     provider : { type : String },
     createdAt: { type: String, default: getCurrentTime },
     updatedAt: { type: String, default: getCurrentTime },

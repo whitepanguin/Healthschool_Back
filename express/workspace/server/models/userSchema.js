@@ -2,12 +2,12 @@ import { Schema, model } from "mongoose";
 import { getCurrentTime } from "../utils/utils.js";
 
 const userSchema = new Schema({
-    email: { type: String, required : true, unique : true },
-    password: { type: String },
-    name: { type: String },
-    age : { type : Number, default : 0 },
-    phone : { type : String, default : "000-0000-0000"},
-    address: { type: String },
+    email: { type: String, required : true, unique : true },    //이메일
+    password: { type: String },                                 //비밀번호
+    name: { type: String },                                     //이름
+    nickName: { type: String },                                 //닉네임
+    birthDate : { type : Number },                              //생일
+    address: { type: String },                                  //주소
     provider : { type : String },
     createdAt: { type: String, default: getCurrentTime },
     updatedAt: { type: String, default: getCurrentTime },

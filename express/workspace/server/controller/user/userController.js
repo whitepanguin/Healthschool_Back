@@ -23,7 +23,10 @@ const register = async (req, res) => {
     // 3) 회원의 정보를 DB에 INSERT한다.
     await User.create({
       email : req.body.email,
-      password : hashedPassword
+      password : hashedPassword,
+      name:req.body.name,
+      birthDate:req.body.birthDate,
+      nickname: req.body.nickname,
     })
 
     return res.status(201).json({

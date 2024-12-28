@@ -1,3 +1,4 @@
+import path from 'path';
 import User from "../../models/userSchema.js";
 import bcrypt from "bcrypt";
 
@@ -102,4 +103,18 @@ const remove = async (req, res) => {
   });
 };
 
-export { register, login, modify, remove };
+const updatePicture = async (req, res) => {
+  const uploadFolder = "uploads/profiles";
+  const relativePath = path.join(uploadFolder, req.file.filename).replaceAll("\\", "/")
+
+  // mongoDB에 저장한다.
+  // 유저를 찾는다
+  // 유저를 .updateOne(foundUser, {picture})
+
+  res.status(200).json({
+    message : "업로드 완료",
+    filePath : `${relativePath}`
+  })
+}
+
+export { register, login, modify, remove, updatePicture };

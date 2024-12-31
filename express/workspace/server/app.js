@@ -1,28 +1,17 @@
-// 디렉토리 구조 및 순서
-// 1. db: DBMS 연결 및 설정
-
-// 2 ~ 6까지 반복
-// 2. app.js(server.js): 서버 설정, 미들웨어 설정 및 라우터 설정
-// 3. schemas: 스키마 정의
-// 4. controllers: DB 접근 및 비지니스 로직 작성
-// 5. routers: 요청한 경로에 맞는 controller를 실행하는 라우터 작성
-// 6. utils: 중복되는 코드를 하나의 유틸 함수로 묶기
 import express from "express";
 import bodyParser from "body-parser";
 import connect from "./connect/connect.js";
-import cors from "cors";
+import cors from "cors"; // CORS 추가
 import dotenv from "dotenv";
 import rootRouter from "./routes/index.js";
 import passport from "passport";
 import { initializePassport } from "./auth/auth.js";
 
-//이미지 등록
 import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-//__dirname 설정
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -32,35 +21,46 @@ dotenv.config(); // dotenv 연결
 const app = express();
 const port = 8000;
 
-// app.use() 미들웨어
-app.use(bodyParser.json());
+// CORS 설정 (여기 추가)
+app.use(cors({
+  origin: "*", // 모든 도메인 허용 (개발 환경)
+  methods: ["GET", "POST", "DELETE", "PUT"], // 허용할 HTTP 메서드
+  credentials: true // 인증 정보 포함 여부
+}));
 
-// 테스트용 모두 접근 허용
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  next();
+// 정적 파일 제공 및 비디오 디렉토리 설정
+const videoDirectory = path.join(__dirname, "videos");
+app.use("/videos", express.static(videoDirectory));
+
+// 미들웨어 설정
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+
+// 비디오 목록 API
+app.get("/api/videos", (req, res) => {
+  fs.readdir(videoDirectory, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "비디오 파일 목록을 불러오지 못했습니다." });
+    }
+
+    const videoList = files.map((file) => ({
+      name: file,
+      url: `http://localhost:${port}/videos/${file}`,
+    }));
+
+    res.status(200).json(videoList);
+  });
 });
 
-// qs모듈을 사용하여 쿼리스트링으로 인식
-app.use(express.urlencoded({ extended: false }));
-app.use(
-  cors({
-    origin: "*",
-    method: ["GET", "POST", "DELETE", "PUT"],
-    credentials: true,
-  })
-);
-
-// passport 초기화 및 사용
+// Passport 초기화
 app.use(passport.initialize());
 initializePassport();
 
-// 파일 이름 중복 처리
+// 이미지 업로드 설정
 const uploadFolder = "uploads/profiles";
 const getUniqueFileName = (originalName, uploadFolder) => {
-  const ext = path.extname(originalName); // 확장자를 추출
-  const baseName = path.basename(originalName, ext); // 확장자를 제외한 파일 이름
+  const ext = path.extname(originalName);
+  const baseName = path.basename(originalName, ext);
   let uniqueName = originalName;
   let counter = 1;
 
@@ -71,7 +71,6 @@ const getUniqueFileName = (originalName, uploadFolder) => {
   return uniqueName;
 };
 
-// 이미지 업로드
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, done) {
@@ -84,11 +83,14 @@ const upload = multer({
   }),
 });
 
-// 폴더의 접근 권한 제공(정적)
 const uploadMiddleware = upload.single("picture");
 
+// 정적 파일 및 라우터 설정
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(uploadMiddleware);
-
 app.use("/", rootRouter);
-app.listen(port);
+
+// 서버 실행
+app.listen(port, () => {
+  console.log(`서버가 실행 중입니다: http://localhost:${port}`);
+});
